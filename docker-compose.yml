@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+    # Web Server Service
+    nginx:
+        image: nginx:alpine
+        container_name: nginx2
+        ports:
+            - "80:80"
+        volumes:
+            - ./:/var/www
+            - ./.docker/nginx/conf.d/:/etc/nginx/conf.d/
+        depends_on:
+            - app
+            - db
+
+    # Application Service
+    app:
+        container_name: php
+        build:
+            context: .docker/php
+            dockerfile: Dockerfile
+        volumes:
+            - ./:/var/www
+        ports:
+            - "9000:9000"
+        working_dir: /var/www
+
+    # Database Service
+    db:
+        image: mysql:latest
+        container_name: mysql
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+        environment:
+            DB_DATABASE: ${DB_DATABASE}
+            DB_USER: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+
